@@ -1,0 +1,82 @@
+name: The New Yorker Magazine
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * 4' # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:      
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get install -y xdg-utils wget xz-utils python3
+          sudo apt-get install -y libxcb-cursor0 libxcb-xinerama0 libegl1 libopengl0
+
+      - name: Install Calibre
+        run: |
+          sudo -v && wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sudo sh /dev/stdin
+
+      - name: Fetch Magazine Epub
+        run: |
+          wget https://raw.githubusercontent.com/kovidgoyal/calibre/master/recipes/new_yorker.recipe -O new_yorker.recipe
+          python editiondate.py
+          ebook-convert new_yorker.recipe output.epub
+          ebook-meta output.epub > epub_metadata.txt
+          ebook-meta output.epub --get-cover=cover.jpg
+
+      - name: Extract and Print Published Date
+        run: |
+          full_title_date=$(grep "Title" epub_metadata.txt | awk -F "[][]" '{print $2}' | tr -d '[:space:]')
+          date_only=$(echo $full_title_date | cut -d' ' -f1)
+          echo "$date_only" > published_date.txt
+          readable_date=$(date -d "$date_only" +"%b %d")
+          day=$(date -d "$date_only" +"%d" | sed 's/^0*//')
+          case $day in
+              1[0-9]|*[04-9]) suffix="th";;
+              *1) suffix="st";;
+              *2) suffix="nd";;
+              *3) suffix="rd";;
+          esac
+          readable_date="${readable_date}${suffix} $(date -d "$date_only" +"%Y")"          
+          sed -i "s/^Title\s*:.*/Title               : The New Yorker Magazine \[$readable_date\]/" epub_metadata.txt
+          sed -i "s/^Published\s*:.*/Published           : $date_only/" epub_metadata.txt
+
+      - name: Convert EPUB to PDF
+        run: |
+          ebook-convert output.epub output.pdf \
+              --pdf-page-margin-top 30 \
+              --pdf-page-margin-bottom 40 \
+              --base-font-size 13 \
+              --extra-css "styles.css"
+
+      - name: Compress PDF
+        run: |
+          pip install pdf-compressor
+          pdf-compressor --set-api-key ${{ secrets.PDF_COMPRESSOR_API_KEY }}
+          pdf-compressor --compression-level low -i output.pdf
+        env:
+          PDF_COMPRESSOR_API_KEY: ${{ secrets.PDF_COMPRESSOR_API_KEY }}
+
+      - name: Create New_Yorker folder
+        run: |
+          folder_name=$(cat published_date.txt)
+          mkdir -p The_New_Yorker/"$folder_name"
+          mv output.epub The_New_Yorker/"$folder_name"/NY_"$folder_name".epub
+          mv output.pdf The_New_Yorker/"$folder_name"/NY_"$folder_name".pdf
+          mv cover.jpg The_New_Yorker/"$folder_name"/
+          mv epub_metadata.txt The_New_Yorker/"$folder_name"/
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add The_New_Yorker/*
+          git commit -m "Add latest New Yorker Magazine"
+          git push

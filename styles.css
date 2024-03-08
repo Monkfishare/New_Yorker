@@ -1,0 +1,21 @@
+a {
+  text-decoration: none;
+}
+
+img { 
+  max-width: 70%; 
+}
+
+[class^="calibre_navbar"] {
+  font-size: 15px;
+  text-align: center;
+}
+
+[class^="captionwrapper"] span {
+  display: block;
+  text-align: center;
+}
+
+body {
+  line-height: 1.3;
+}
