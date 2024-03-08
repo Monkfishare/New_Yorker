@@ -16,6 +16,10 @@ img {
   text-align: center;
 }
 
+[class^="calibre"] h1 {
+  font-size: 20px;
+}
+
 body {
   line-height: 1.3;
 }
