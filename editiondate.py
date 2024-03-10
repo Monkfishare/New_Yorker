@@ -1,6 +1,6 @@
 import re
 
-issue_date = "2024/02/12"  # For past edition, for example, issue_date = "2024/01/29" [format:yyyy/mm/dd (Monday)]
+issue_date = "2024/02/26"  # For past edition, for example, issue_date = "2024/01/29" [format:yyyy/mm/dd (Monday)]
 
 insert_lines = """
                 date_match = re.search(r'/(\d{4}_\d{2}_\d{2})\.jpg', self.cover_url)            
