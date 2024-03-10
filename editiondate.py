@@ -3,7 +3,7 @@ import re
 issue_date = "2024/02/12"  # For past edition, for example, issue_date = "2024/01/29" [format:yyyy/mm/dd (Monday)]
 
 insert_lines = """
-                date_match = re.search(r'/(\d{4}_\d{2}_\d{2})\.(jpg|gif|png)', self.cover_url)
+                date_match = re.search(r'/(\d{4}_\d{2}_\d{2})\.(jpg|gif)', self.cover_url)
                 if date_match:
                     raw_date = date_match.group(1)
                     edition_date = raw_date.replace("_", "-")
