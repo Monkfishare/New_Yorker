@@ -1,6 +1,5 @@
 import re
-
-issue_date = ""  # For past edition, for example, issue_date = "2024/01/29" [format:yyyy/mm/dd (Monday)]
+import os
 
 insert_lines = """
                 date_match = re.search(r'/(\d{4}_\d{2}_\d{2})\.(jpg|gif)', self.cover_url)
@@ -11,45 +10,71 @@ insert_lines = """
                     self.timefmt = ' [' + edition_date + ']'
                 """
 
-file_path = "new_yorker.recipe"
-with open(file_path, 'r') as file:
-    content = file.read()
-
-# Pattern for self.cover_url = cover_img.get('src')
-objective_line_pattern = re.compile(r'self\.cover_url = cover_img\.get\(\'src\'\)\s*')
-
 replace_patterns = [
     (r'/w_\d{3}', r'/w_960'),
     (r'"w_\d{3}"', r'"w_960"'),
 ]
 
-if issue_date:
-    replace_patterns.extend([
-        (r'MagazineSection__cover', r'MagazineCover__cover'),
-        (r'https://www\.newyorker\.com/magazine', rf'https://www.newyorker.com/magazine/{issue_date}'),
-        (r'https://www\.newyorker\.com/archive', rf'https://www.newyorker.com/magazine/{issue_date}')
-    ])
+def process_date(issue_date, content):
+    if issue_date:
+        replace_patterns_extended = [
+            (r'MagazineSection__cover', r'MagazineCover__cover'),
+            (r'https://www\.newyorker\.com/magazine', rf'https://www.newyorker.com/magazine/{issue_date}'),
+            (r'https://www\.newyorker\.com/archive', rf'https://www.newyorker.com/magazine/{issue_date}')
+        ]
+        replace_patterns_extended.extend(replace_patterns)
 
-match = objective_line_pattern.search(content)
+        modified_content = content
 
-if match:
-    insert_position = match.end()
-    modified_content = content[:insert_position].rstrip() + insert_lines + content[insert_position:]
+        for pattern, replacement in replace_patterns_extended:
+            modified_content = re.sub(pattern, replacement, modified_content)
 
-    for pattern, replacement in replace_patterns:
-        modified_content = re.sub(pattern, replacement, modified_content)
+        separator = '\u2550' * 20
+        print(separator + f"  👇RECIPE for issue date {issue_date}👇  " + separator)
+        print(modified_content)
+        print(separator + f"  👆RECIPE for issue date {issue_date}👆  " + separator)
 
-    separator = '\u2550' * 20
-    print(separator + "  👇RECIPE👇  " + separator)
-    print(modified_content)
-    print(separator + "  👆RECIPE👆  " + separator)
+        # Write modified content back to file
+        with open(file_path, 'w') as file:
+            file.write(modified_content)
+        print(separator + "  👏SUCCESS👏  " + separator)
+    else:
+        print(separator + "  ⚠ERRORS⚠  " + separator)
+        print("Error: Issue date not provided.")
+        print(separator + "  ⚠ERRORS⚠  " + separator)
 
-    with open(file_path, 'w') as file:
-        file.write(modified_content)
-    print(separator + "  👏SUCESS👏  " + separator)
-else:
-    print(separator + "  ⚠ERRORS⚠  " + separator)
-    print("Error: Pattern not found in the new_yorker.recipe. Check the latest recipe structure or update the regular expression.")
-    print("self.cover_url = cover_img.get('src')")
-    print("https://raw.githubusercontent.com/kovidgoyal/calibre/master/recipes/new_yorker.recipe")
-    print(separator + "  ⚠ERRORS⚠  " + separator)
+def mark_date_as_processed(date):
+    with open("processed_dates.txt", "a") as file:
+        file.write(date + "\n")
+
+def is_date_processed(date):
+    if not os.path.exists("processed_dates.txt"):
+        return False
+    with open("processed_dates.txt", "r") as file:
+        processed_dates = file.readlines()
+    return date.strip() in processed_dates
+
+file_path = "new_yorker.recipe"
+
+with open("issue_dates.txt", 'r') as dates_file:
+    issue_dates = dates_file.readlines()
+
+for issue_date in issue_dates:
+    issue_date = issue_date.strip()  # Remove leading/trailing whitespace
+    if issue_date and not is_date_processed(issue_date):  # Check if the issue date is not empty and not processed
+        with open(file_path, 'r') as file:
+            content = file.read()
+
+        # Pattern for self.cover_url = cover_img.get('src')
+        objective_line_pattern = re.compile(r'self\.cover_url = cover_img\.get\(\'src\'\)\s*')
+        match = objective_line_pattern.search(content)
+
+        if match:
+            insert_position = match.end()
+            insert_lines = insert_lines_template.replace('\n', '\n    ')  # Indent insert_lines
+            modified_content = content[:insert_position].rstrip() + insert_lines + content[insert_position:]
+
+            process_date(issue_date, modified_content)
+            mark_date_as_processed(issue_date)  # Mark the date as processed to avoid processing it again in the future
+    else:
+        print("Skipping empty or already processed issue date.")

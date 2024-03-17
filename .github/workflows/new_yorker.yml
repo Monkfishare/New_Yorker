@@ -5,7 +5,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * 2' # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+    # - cron: '0 0 * * 2' # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+    - cron: '*/3 * * * *'
 
 jobs:
   build:
@@ -77,6 +78,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add The_New_Yorker/*
+          git add The_New_Yorker/* processed_dates.txt
           git commit -m "Add latest New Yorker Magazine"
           git push
