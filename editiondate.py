@@ -43,23 +43,20 @@ def process_date(issue_date, content):
         print("Error: Issue date not provided.")
         print(separator + "  ⚠ERRORS⚠  " + separator)
 
-def mark_date_as_processed(date):
-    with open("processed_dates.txt", "a") as file:
-        file.write(date + "\n")
-
-def is_date_processed(date):
-    if not os.path.exists("processed_dates.txt"):
-        return False
-    with open("processed_dates.txt", "r") as file:
-        processed_dates = file.readlines()
-    return date.strip() in processed_dates
+def remove_date_from_issue_dates(date):
+    with open("issue_dates.txt", "r") as file:
+        lines = file.readlines()
+    with open("issue_dates.txt", "w") as file:
+        for line in lines:
+            if line.strip() != date:
+                file.write(line)
 
 file_path = "new_yorker.recipe"
 
 with open("issue_dates.txt", 'r') as dates_file:
     issue_date = dates_file.readline().strip()  # Read one line from the file
 
-if issue_date and not is_date_processed(issue_date):  # Check if the issue date is not empty and not processed
+if issue_date:  # Check if the issue date is not empty
     with open(file_path, 'r') as file:
         content = file.read()
 
@@ -73,6 +70,5 @@ if issue_date and not is_date_processed(issue_date):  # Check if the issue date 
         modified_content = content[:insert_position].rstrip() + insert_lines + content[insert_position:]
 
         process_date(issue_date, modified_content)
-        mark_date_as_processed(issue_date)  # Mark the date as processed to avoid processing it again in the future
 else:
-    print("Skipping empty or already processed issue date.")
+    print("Skipping empty issue date.")
