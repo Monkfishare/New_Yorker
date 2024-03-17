@@ -2,11 +2,8 @@ name: The New Yorker Magazine
 
 on:
   push:
-    branches:
-      - main
-  schedule:
-    # - cron: '0 0 * * 2' # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
-    - cron: '*/1 4-7 * * *'
+    paths:
+      - 'issue_dates.txt'
 
 jobs:
   build:
