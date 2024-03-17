@@ -2,13 +2,13 @@ import re
 import os
 
 insert_lines_template = """
-                date_match = re.search(r'/(\d{4}_\d{2}_\d{2})\.(jpg|gif)', self.cover_url)
-                if date_match:
-                    raw_date = date_match.group(1)
-                    edition_date = raw_date.replace("_", "-")
-                    self.log('Edition date:', edition_date)
-                    self.timefmt = ' [' + edition_date + ']'
-                """
+            date_match = re.search(r'/(\d{4}_\d{2}_\d{2})\.(jpg|gif)', self.cover_url)
+            if date_match:
+                raw_date = date_match.group(1)
+                edition_date = raw_date.replace("_", "-")
+                self.log('Edition date:', edition_date)
+                self.timefmt = ' [' + edition_date + ']'
+            """
 
 replace_patterns = [
     (r'/w_\d{3}', r'/w_960'),
