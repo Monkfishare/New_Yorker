@@ -2,8 +2,10 @@ name: The New Yorker Magazine
 
 on:
   push:
-    paths:
-      - 'issue_dates.txt'
+    branches:
+      - main
+  schedule:
+    - cron: '*/5 * * * *'
 
 jobs:
   build:
