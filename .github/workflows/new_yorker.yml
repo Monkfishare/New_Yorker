@@ -78,6 +78,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add The_New_Yorker/*
+          git add The_New_Yorker/* issue_dates.txt
           git commit -m "Add latest New Yorker Magazine"
           git push
