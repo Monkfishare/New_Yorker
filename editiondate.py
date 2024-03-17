@@ -43,18 +43,16 @@ def process_date(issue_date, content):
         print("Error: Issue date not provided.")
         print(separator + "  ⚠ERRORS⚠  " + separator)
 
-def remove_date_from_issue_dates(date):
+def remove_first_date_from_issue_dates():
     with open("issue_dates.txt", "r") as file:
-        lines = file.readlines()
+        lines = file.readlines()[1:]  # Remove the first line
     with open("issue_dates.txt", "w") as file:
-        for line in lines:
-            if line.strip() != date:
-                file.write(line)
+        file.writelines(lines)
 
 file_path = "new_yorker.recipe"
 
 with open("issue_dates.txt", 'r') as dates_file:
-    issue_date = dates_file.readline().strip()  # Read one line from the file
+    issue_date = dates_file.readline().strip()  # Read the first line from the file
 
 if issue_date:  # Check if the issue date is not empty
     with open(file_path, 'r') as file:
