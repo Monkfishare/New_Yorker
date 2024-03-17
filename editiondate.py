@@ -39,25 +39,17 @@ def process_date(issue_date, content):
             file.write(modified_content)
         print(separator + "  👏SUCCESS👏  " + separator)
 
-        # Delete the processed issue date
-        lines = []
-        with open("issue_dates.txt", 'r') as dates_file:
-            lines = dates_file.readlines()
-        
-        # Remove the first line
-        lines = lines[1:]
-
-        # Write modified content back to the file
-        with open("issue_dates.txt", 'w') as dates_file:
-            dates_file.writelines(lines)
     else:
         print(separator + "  ⚠ERRORS⚠  " + separator)
         print("Error: Issue date not provided.")
         print(separator + "  ⚠ERRORS⚠  " + separator)
 
+# File paths
 file_path = "new_yorker.recipe"
+issue_dates_file_path = "issue_dates.txt"
 
-with open("issue_dates.txt", 'r') as dates_file:
+# Read the issue date from the file
+with open(issue_dates_file_path, 'r') as dates_file:
     issue_date = dates_file.readline().strip()  # Read the first line from the file
 
 if issue_date:  # Check if the issue date is not empty
@@ -74,5 +66,15 @@ if issue_date:  # Check if the issue date is not empty
         modified_content = content[:insert_position].rstrip() + insert_lines + content[insert_position:]
 
         process_date(issue_date, modified_content)
-else:
-    print("Skipping empty issue date.")
+
+# Delete the processed issue date
+lines = []
+with open(issue_dates_file_path, 'r') as dates_file:
+    lines = dates_file.readlines()
+
+# Remove the first line
+lines = lines[1:]
+
+# Write modified content back to the file
+with open(issue_dates_file_path, 'w') as dates_file:
+    dates_file.writelines(lines)
