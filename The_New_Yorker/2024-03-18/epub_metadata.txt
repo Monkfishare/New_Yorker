@@ -1,7 +1,7 @@
 Title               : The New Yorker Magazine [Mar 18th 2024]
 Author(s)           : calibre [calibre]
 Publisher           : calibre
-Book Producer       : calibre (7.6.0) [https://calibre-ebook.com]
+Book Producer       : calibre (7.7.0) [https://calibre-ebook.com]
 Languages           : eng
 Published           : 2024-03-18
 Comments            : Articles in this issue:
