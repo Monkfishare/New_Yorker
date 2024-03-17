@@ -57,24 +57,22 @@ def is_date_processed(date):
 file_path = "new_yorker.recipe"
 
 with open("issue_dates.txt", 'r') as dates_file:
-    issue_dates = dates_file.readlines()
+    issue_date = dates_file.readline().strip()  # Read one line from the file
 
-for issue_date in issue_dates:
-    issue_date = issue_date.strip()  # Remove leading/trailing whitespace
-    if issue_date and not is_date_processed(issue_date):  # Check if the issue date is not empty and not processed
-        with open(file_path, 'r') as file:
-            content = file.read()
+if issue_date and not is_date_processed(issue_date):  # Check if the issue date is not empty and not processed
+    with open(file_path, 'r') as file:
+        content = file.read()
 
-        # Pattern for self.cover_url = cover_img.get('src')
-        objective_line_pattern = re.compile(r'self\.cover_url = cover_img\.get\(\'src\'\)\s*')
-        match = objective_line_pattern.search(content)
+    # Pattern for self.cover_url = cover_img.get('src')
+    objective_line_pattern = re.compile(r'self\.cover_url = cover_img\.get\(\'src\'\)\s*')
+    match = objective_line_pattern.search(content)
 
-        if match:
-            insert_position = match.end()
-            insert_lines = insert_lines_template.replace('\n', '\n    ')  # Indent insert_lines
-            modified_content = content[:insert_position].rstrip() + insert_lines + content[insert_position:]
+    if match:
+        insert_position = match.end()
+        insert_lines = insert_lines_template.replace('\n', '\n    ')  # Indent insert_lines
+        modified_content = content[:insert_position].rstrip() + insert_lines + content[insert_position:]
 
-            process_date(issue_date, modified_content)
-            mark_date_as_processed(issue_date)  # Mark the date as processed to avoid processing it again in the future
-    else:
-        print("Skipping empty or already processed issue date.")
+        process_date(issue_date, modified_content)
+        mark_date_as_processed(issue_date)  # Mark the date as processed to avoid processing it again in the future
+else:
+    print("Skipping empty or already processed issue date.")
