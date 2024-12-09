@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:      
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -27,6 +27,7 @@ jobs:
           source venv/bin/activate
           pip install bs4 requests
           python nybooks.py
+
 
       - name: Fetch Epub
         run: |
