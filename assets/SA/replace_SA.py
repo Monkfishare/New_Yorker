@@ -14,8 +14,13 @@ def write_file(file_path, content):
         file.write(content)
 
 recipe_content = read_file(recipe_file)
-recipe_content = re.sub(r'\b(800|2000)\b', '', recipe_content)
+recipe_content = re.sub(r'\b800\b|\b600\b', lambda m: '1600' if m.group() == '600' else '', recipe_content)
+recipe_content = re.sub(
+    r'\[class\^="article__image-"\], \[class\^="lead_image-"\], \.calibre-nuked-tag-figcaption\s*{ font-size:small; }',
+    r'[class^="caption"], [class^="credits"], [class^="image"], [class^="lead_image-"], .calibre-nuked-tag-figcaption { font-size:small; text-align:center; }',
+    recipe_content)
 recipe_content = re.sub(r"'issue_url'\s*:\s*\{\s*", "'issue_url': {\n            'default': '',\n            ", recipe_content)
+recipe_content = re.sub(r"return soup", "    img.wrap(soup.new_tag('a', href=img['src'].split('?w=')[0] + '?w='))\n        return soup", recipe_content)
 
 if os.path.getsize(issuedate_file) > 0:
     issuedate_content = read_file(issuedate_file).splitlines()
