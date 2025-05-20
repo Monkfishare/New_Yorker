@@ -1,0 +1,25 @@
+name: Update Repo
+on:
+  workflow_dispatch:
+
+jobs:
+  update-repo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Pull latest changes
+        run: git pull origin main
+      - name: Download zip file
+        run: |
+          git clone https://gitlab.com/Monkfishare/2025.git temp-repo
+          rm -rf NY
+          cp -R temp-repo/* .
+          rm -rf temp-repo
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add NY/*
+          git commit -m "Initial commit"
+          git push
