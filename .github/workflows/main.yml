@@ -1,0 +1,60 @@
+name: Update Repo
+on:
+  workflow_dispatch:
+    inputs:
+      convert_count:
+        description: 'Number of EPUB files to convert to AZW3'
+        required: false
+        default: '2'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '3'
+          - 'all'
+
+env:
+  TARGET_DIR: 'NY'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xdg-utils xz-utils
+          sudo apt-get install -y libxcb-cursor0 libxcb-xinerama0 libegl1 libopengl0
+      - name: Install Calibre
+        run: |
+          sudo -v && wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sudo sh /dev/stdin
+      - name: Download zip file
+        run: |
+          git clone https://gitlab.com/Monkfishare/2025.git temp-repo
+          cp -R temp-repo/* .
+      - name: Convert EPUB to AZW3
+        run: |
+          if [ "${{ github.event.inputs.convert_count }}" = "all" ]; then
+            find ${{ env.TARGET_DIR }} -name "*.epub" -type f | sort -r | while read file; do
+              dir=$(dirname "$file")
+              basename=$(basename "$file" .epub)
+              output="$dir/$basename.azw3"
+              ebook-convert "$file" "$output"
+            done
+          else
+            find ${{ env.TARGET_DIR }} -name "*.epub" -type f | sort -r | head -${{ github.event.inputs.convert_count }} | while read file; do
+              dir=$(dirname "$file")
+              basename=$(basename "$file" .epub)
+              output="$dir/$basename.azw3"
+              ebook-convert "$file" "$output"
+            done
+          fi
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ${{ env.TARGET_DIR }}
+          git commit -m "Initial commit"
+          git push
