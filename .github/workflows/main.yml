@@ -33,7 +33,8 @@ jobs:
       - name: Download zip file
         run: |
           git clone https://gitlab.com/Monkfishare/2025.git temp-repo
-          cp -R temp-repo/* .
+          cp -R temp-repo/${{ env.TARGET_DIR }} .
+          rm -rf temp-repo
       - name: Convert EPUB to AZW3
         run: |
           if [ "${{ github.event.inputs.convert_count }}" = "all" ]; then
