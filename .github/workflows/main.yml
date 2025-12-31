@@ -5,7 +5,7 @@ on:
       convert_count:
         description: 'Number of EPUB files to convert to AZW3'
         required: false
-        default: '2'
+        default: 'all'
         type: choice
         options:
           - '1'
@@ -32,7 +32,7 @@ jobs:
           sudo -v && wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sudo sh /dev/stdin
       - name: Download zip file
         run: |
-          git clone https://gitlab.com/Monkfishare/2025.git temp-repo
+          git clone https://gitlab.com/Monkfishare/mgzn.git temp-repo
           cp -R temp-repo/${{ env.TARGET_DIR }} .
           rm -rf temp-repo
       - name: Convert EPUB to AZW3
